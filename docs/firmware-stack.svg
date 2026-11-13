@@ -1,0 +1,143 @@
+<svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="stack-title stack-desc">
+        <title id="stack-title">ESP32-H2 Firmware Architecture Layer Stack</title>
+        <desc id="stack-desc">Four-tier layered firmware architecture for ESP32-H2: Application Layer on top, FreeRTOS and NimBLE Middleware highlighted as the focal point, ESP-IDF HAL & Device Drivers below, and ESP32-H2 RISC-V Hardware Peripherals at the base.</desc>
+        
+        <defs>
+          <pattern id="dot-grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1" fill="rgba(45,49,66,0.06)"/>
+          </pattern>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect width="100%" height="100%" fill="#f5f5f5"/>
+        <rect width="100%" height="100%" fill="url(#dot-grid)"/>
+
+        <!-- ================= LEFT DIRECTION INDICATOR ================= -->
+        <g id="direction-axis">
+          <text x="46" y="52" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.16em" text-anchor="middle">ABSTRACTION</text>
+          
+          <line x1="46" y1="62" x2="46" y2="428" stroke="rgba(45,49,66,0.35)" stroke-width="1.2" stroke-dasharray="3 3"/>
+          <polygon points="41,64 51,64 46,55" fill="#4f5d75"/>
+          <polygon points="41,426 51,426 46,435" fill="#4f5d75"/>
+          
+          <text x="46" y="448" fill="#4f5d75" font-size="8.5" font-family="'Geist Mono', monospace" letter-spacing="0.16em" text-anchor="middle">SILICON</text>
+        </g>
+
+        <!-- ================= LAYER 4: APPLICATION LAYER ================= -->
+        <g id="layer-4-application">
+          <!-- Container -->
+          <rect x="96" y="60" width="856" height="82" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+          
+          <!-- Layer Index & Label -->
+          <text x="120" y="98" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" font-weight="600" letter-spacing="0.14em">L4</text>
+          <text x="156" y="100" fill="#2d3142" font-size="17" font-weight="600" font-family="'Geist', sans-serif">Application Layer</text>
+          <text x="156" y="122" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" letter-spacing="0.04em">SENSOR LOGIC & BTHOME PROTOCOL</text>
+
+          <!-- Modules Chips -->
+          <!-- Sensor Broadcaster Task -->
+          <rect x="440" y="83" width="160" height="36" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.16)" stroke-width="1"/>
+          <text x="520" y="106" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Sensor Task (10s)</text>
+
+          <!-- BTHome v2 Serializer -->
+          <rect x="612" y="83" width="168" height="36" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.16)" stroke-width="1"/>
+          <text x="696" y="106" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">BTHome v2 Serializer</text>
+
+          <!-- Telemetry Hook -->
+          <rect x="792" y="83" width="136" height="36" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.16)" stroke-width="1"/>
+          <text x="860" y="106" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">Telemetry / RNG</text>
+        </g>
+
+        <!-- ================= LAYER 3: MIDDLEWARE & OS (FOCAL POINT) ================= -->
+        <g id="layer-3-middleware">
+          <!-- Focal Layer Container: Accent tint + bold accent border -->
+          <rect x="96" y="152" width="856" height="98" rx="6" fill="rgba(191,69,32,0.06)"/>
+          <rect x="96" y="152" width="856" height="98" rx="6" fill="none" stroke="#bf4520" stroke-width="1.8"/>
+
+          <!-- Layer Index & Label with Focal Marker -->
+          <text x="120" y="196" fill="#bf4520" font-size="10" font-family="'Geist Mono', monospace" font-weight="700" letter-spacing="0.14em">L3</text>
+          <text x="156" y="198" fill="#bf4520" font-size="18" font-weight="700" font-family="'Geist', sans-serif">Middleware &amp; OS Layer</text>
+          
+          <!-- Focal Tag Pill -->
+          <rect x="156" y="212" width="102" height="18" rx="9" fill="#bf4520"/>
+          <text x="207" y="224" fill="#ffffff" font-size="8" font-family="'Geist Mono', monospace" font-weight="600" letter-spacing="0.12em" text-anchor="middle">FOCAL RUNTIME</text>
+
+          <!-- Focal Component 1: FreeRTOS Kernel -->
+          <g id="freertos-focal-node">
+            <rect x="440" y="171" width="220" height="60" rx="5" fill="#ffffff" stroke="#bf4520" stroke-width="1.8"/>
+            <rect x="440" y="171" width="220" height="60" rx="5" fill="rgba(191,69,32,0.09)"/>
+            
+            <circle cx="456" cy="191" r="4.5" fill="#bf4520"/>
+            <text x="468" y="195" fill="#bf4520" font-size="14" font-weight="700" font-family="'Geist', sans-serif">FreeRTOS Kernel</text>
+            <text x="468" y="214" fill="#802b11" font-size="9.5" font-family="'Geist Mono', monospace" letter-spacing="0.02em">vTaskDelayUntil · EventGroup</text>
+          </g>
+
+          <!-- Component 2: NimBLE Host Stack -->
+          <g id="nimble-node">
+            <rect x="672" y="171" width="138" height="60" rx="5" fill="#ffffff" stroke="rgba(191,69,32,0.35)" stroke-width="1"/>
+            <text x="741" y="196" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">NimBLE Host</text>
+            <text x="741" y="214" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">GAP · Non-Conn Adv</text>
+          </g>
+
+          <!-- Component 3: NVS Flash -->
+          <g id="nvs-node">
+            <rect x="822" y="171" width="106" height="60" rx="5" fill="#ffffff" stroke="rgba(191,69,32,0.35)" stroke-width="1"/>
+            <text x="875" y="196" fill="#2d3142" font-size="13" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">NVS Flash</text>
+            <text x="875" y="214" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">BLE State Store</text>
+          </g>
+        </g>
+
+        <!-- ================= LAYER 2: ESP-IDF HARDWARE ABSTRACTION & DRIVERS ================= -->
+        <g id="layer-2-hal">
+          <!-- Container -->
+          <rect x="96" y="260" width="856" height="82" rx="6" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+
+          <!-- Layer Index & Label -->
+          <text x="120" y="298" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" font-weight="600" letter-spacing="0.14em">L2</text>
+          <text x="156" y="300" fill="#2d3142" font-size="17" font-weight="600" font-family="'Geist', sans-serif">ESP-IDF HAL &amp; Drivers</text>
+          <text x="156" y="322" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" letter-spacing="0.04em">HARDWARE CONTROLLERS &amp; SUBSYSTEM DRIVERS</text>
+
+          <!-- Modules Chips -->
+          <!-- NimBLE Controller / HCI -->
+          <rect x="440" y="283" width="158" height="36" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.16)" stroke-width="1"/>
+          <text x="519" y="306" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">NimBLE Controller / HCI</text>
+
+          <!-- USB-Serial/JTAG Driver -->
+          <rect x="610" y="283" width="168" height="36" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.16)" stroke-width="1"/>
+          <text x="694" y="306" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">USB-Serial/JTAG Console</text>
+
+          <!-- Hardware RNG & Flash -->
+          <rect x="790" y="283" width="138" height="36" rx="4" fill="#f8f9fa" stroke="rgba(45,49,66,0.16)" stroke-width="1"/>
+          <text x="859" y="306" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">HW RNG &amp; SPI Flash</text>
+        </g>
+
+        <!-- ================= LAYER 1: HARDWARE SILICON PERIPHERALS ================= -->
+        <g id="layer-1-hardware">
+          <!-- Container (lifted tint to represent physical silicon) -->
+          <rect x="96" y="352" width="856" height="84" rx="6" fill="#eceff3" stroke="rgba(45,49,66,0.24)" stroke-width="1"/>
+
+          <!-- Layer Index & Label -->
+          <text x="120" y="391" fill="#4f5d75" font-size="10" font-family="'Geist Mono', monospace" font-weight="600" letter-spacing="0.14em">L1</text>
+          <text x="156" y="393" fill="#2d3142" font-size="17" font-weight="600" font-family="'Geist', sans-serif">ESP32-H2 Silicon Hardware</text>
+          <text x="156" y="415" fill="#4f5d75" font-size="9.5" font-family="'Geist Mono', monospace" letter-spacing="0.04em">RISC-V 32-BIT SOC &amp; 2.4 GHZ TRANSCEIVER</text>
+
+          <!-- Modules Chips -->
+          <!-- 32-bit RISC-V Core -->
+          <rect x="440" y="376" width="144" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+          <text x="512" y="399" fill="#2d3142" font-size="12" font-weight="600" font-family="'Geist', sans-serif" text-anchor="middle">RISC-V Core (96MHz)</text>
+
+          <!-- 2.4 GHz BLE 5.0 Radio -->
+          <rect x="596" y="376" width="170" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+          <text x="681" y="399" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">2.4GHz BLE 5.0 Radio</text>
+
+          <!-- USB-Serial/JTAG Controller -->
+          <rect x="778" y="376" width="150" height="36" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.18)" stroke-width="1"/>
+          <text x="853" y="399" fill="#2d3142" font-size="12" font-weight="500" font-family="'Geist', sans-serif" text-anchor="middle">USB-Serial/JTAG IP</text>
+        </g>
+
+        <!-- ================= EDITORIAL FOOTER CALLOUT ================= -->
+        <g id="editorial-callout">
+          <rect x="96" y="448" width="856" height="42" rx="4" fill="#ffffff" stroke="rgba(45,49,66,0.12)" stroke-width="1"/>
+          <text x="114" y="473" fill="#bf4520" font-size="12" font-weight="700" font-family="'Geist', sans-serif">★ ARCHITECTURE NOTE</text>
+          <text x="272" y="473" fill="#4f5d75" font-size="11" font-family="'Instrument Serif', serif" font-style="italic">FreeRTOS and NimBLE form the event-driven focal backbone: coordinating non-blocking controller synchronization with jitter-free BTHome v2 packet broadcasts.</text>
+        </g>
+      </svg>

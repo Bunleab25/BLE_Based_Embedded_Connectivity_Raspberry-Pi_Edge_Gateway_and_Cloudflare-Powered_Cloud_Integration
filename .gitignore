@@ -1,0 +1,11 @@
+# ESP-IDF build output and generated config
+esp_idf/**/build/
+esp_idf/**/sdkconfig
+esp_idf/**/sdkconfig.old
+esp_idf/**/managed_components/
+esp_idf/**/dependencies.lock
+
+# Editor / OS
+.vscode/
+.DS_Store
+*.log

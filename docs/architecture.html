@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture</title>
+<style>
+  body { margin: 0; padding: 40px 20px; background: #f8fafc; font-family: -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .card { max-width: 1100px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+  svg { display: block; width: 100%; height: auto; }
+  text { fill: #0f172a; }
+  .sub { fill: #64748b; font-size: 12px; }
+  .name { font-size: 15px; font-weight: 600; }
+  .lbl { fill: #475569; font-size: 11px; font-family: monospace; }
+  .zone { fill: #f8fafc; stroke: #94a3b8; stroke-dasharray: 4 4; }
+  .zt { fill: #64748b; font-size: 11px; font-weight: 600; letter-spacing: .08em; }
+  .box { fill: #fff; stroke: #0f172a; stroke-width: 1.2; }
+  .hot { fill: #fffbf9; stroke: #bf4520; stroke-width: 2; }
+  .arrow { stroke: #475569; stroke-width: 1.4; fill: none; marker-end: url(#a); }
+</style>
+</head>
+<body>
+<div class="card">
+<svg viewBox="0 0 1100 220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M1 2L8 5L1 8Z" fill="#475569"/>
+    </marker>
+  </defs>
+
+  <!-- Raspberry Pi 5 zone -->
+  <rect class="zone" x="230" y="30" width="380" height="160" rx="10"/>
+  <text class="zt" x="250" y="52">RASPBERRY PI 5</text>
+
+  <!-- Nodes -->
+  <rect class="box" x="20" y="78" width="150" height="84" rx="8"/>
+  <text class="name" x="95" y="104" text-anchor="middle">ESP32-H2</text>
+  <text class="sub" x="95" y="125" text-anchor="middle">Sensor node</text>
+  <text class="sub" x="95" y="142" text-anchor="middle">BTHome beacon</text>
+
+  <rect class="hot" x="250" y="78" width="150" height="84" rx="8"/>
+  <text class="name" x="325" y="104" text-anchor="middle">Home Assistant</text>
+  <text class="sub" x="325" y="125" text-anchor="middle">Local hub</text>
+  <text class="sub" x="325" y="142" text-anchor="middle">State + dashboard</text>
+
+  <rect class="box" x="440" y="78" width="150" height="84" rx="8"/>
+  <text class="name" x="515" y="104" text-anchor="middle">Cloudflared</text>
+  <text class="sub" x="515" y="125" text-anchor="middle">Outbound tunnel</text>
+  <text class="sub" x="515" y="142" text-anchor="middle">No port forwarding</text>
+
+  <rect class="box" x="690" y="78" width="150" height="84" rx="8"/>
+  <text class="name" x="765" y="104" text-anchor="middle">Cloudflare</text>
+  <text class="sub" x="765" y="125" text-anchor="middle">Public edge</text>
+  <text class="sub" x="765" y="142" text-anchor="middle">TLS + DDoS shield</text>
+
+  <rect class="box" x="930" y="78" width="150" height="84" rx="8"/>
+  <text class="name" x="1005" y="104" text-anchor="middle">Browser / Phone</text>
+  <text class="sub" x="1005" y="125" text-anchor="middle">Remote access</text>
+  <text class="sub" x="1005" y="142" text-anchor="middle">Live view</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M170 120H248"/>
+  <path class="arrow" d="M400 120H438"/>
+  <path class="arrow" d="M590 120H688"/>
+  <path class="arrow" d="M840 120H928"/>
+
+  <!-- Labels -->
+  <text class="lbl" x="209" y="110" text-anchor="middle">BLE</text>
+  <text class="lbl" x="639" y="110" text-anchor="middle">QUIC</text>
+  <text class="lbl" x="884" y="110" text-anchor="middle">WSS</text>
+</svg>
+</div>
+</body>
+</html>
