@@ -9,9 +9,9 @@ An ESP32-H2 broadcasts temperature and humidity over BLE (BTHome v2). A Raspberr
 ```text
 .
 ├── README.md
+├── TUTORIAL.md              # full step-by-step guide
 ├── docs/
-│   ├── TUTORIAL.md          # full step-by-step guide
-│   ├── architecture.png     # system diagram (also .html)
+│   ├── architecture.png     # system diagram
 │   ├── firmware-stack.png   # ESP-IDF layer diagram
 │   └── images/              # screenshots (serial monitor, dashboard)
 └── esp_idf/
@@ -29,4 +29,4 @@ idf.py menuconfig        # Component config → Bluetooth → enable NimBLE
 idf.py build flash monitor
 ```
 
-Then follow [docs/TUTORIAL.md](docs/TUTORIAL.md) to set up Home Assistant and the Cloudflare Tunnel.
+Then follow [TUTORIAL.md](TUTORIAL.md) to set up Home Assistant and the Cloudflare Tunnel.

@@ -2,7 +2,7 @@
 
 Build a small IoT pipeline: an **ESP32-H2** broadcasts temperature and humidity over Bluetooth LE, a **Raspberry Pi 5** running **Home Assistant** collects it, and a **Cloudflare Tunnel** shows the dashboard from anywhere. No port forwarding is needed.
 
-![Architecture](architecture.png)
+![Architecture](docs/architecture.png)
 
 | Stage | What it does | Key idea |
 |---|---|---|
@@ -16,11 +16,11 @@ Build a small IoT pipeline: an **ESP32-H2** broadcasts temperature and humidity 
 
 ## Part 1: ESP32-H2 firmware (ESP-IDF)
 
-The firmware lives in [`esp_idf/esp-h2`](../esp_idf/esp-h2). It sends a **non-connectable BLE advertisement** every 10 seconds. The advertisement uses the open **BTHome v2** format, so Home Assistant detects it automatically.
+The firmware lives in [`esp_idf/esp-h2`](esp_idf/esp-h2). It sends a **non-connectable BLE advertisement** every 10 seconds. The advertisement uses the open **BTHome v2** format, so Home Assistant detects it automatically.
 
 ### Firmware stack
 
-![Firmware stack](firmware-stack.png)
+![Firmware stack](docs/firmware-stack.png)
 
 | Layer | Contents |
 |---|---|
@@ -98,7 +98,7 @@ app_main: Packet #1 broadcasted | Temp: 27.31 °C | Humi: 62.40 %
 
 Real output in the VS Code ESP-IDF terminal (ESP-IDF v5.5.5). A new packet is sent every 10 s, and NimBLE stops and restarts advertising each time to load the new payload:
 
-![Serial monitor output](images/serial-monitor.png)
+![Serial monitor output](docs/images/serial-monitor.png)
 
 > [!NOTE]
 > The last two bytes of the device address (`32A2` here) become part of the Home Assistant entity names, so yours will differ.
@@ -326,7 +326,7 @@ journalctl -u cloudflared-tunnel | grep trycloudflare.com   # your public URL
 
 Open the public URL from any browser or phone. The dashboard shows live gauges, mini trend tiles and a 1-hour history chart:
 
-![Home Assistant dashboard over the public URL](images/dashboard.jpg)
+![Home Assistant dashboard over the public URL](docs/images/dashboard.jpg)
 
 > [!NOTE]
 > A quick tunnel gets a random URL that changes on restart. For a fixed address, use a named tunnel with your own domain.
