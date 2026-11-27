@@ -1,16 +1,48 @@
-# ESP32-H2 → Raspberry Pi 5 → Cloudflare: BLE Telemetry 
+# ESP32-H2 → Raspberry Pi 5 → Tailscale Funnel: BLE Telemetry 
 
-Build a small IoT pipeline: an **ESP32-H2** broadcasts temperature and humidity over Bluetooth LE, a **Raspberry Pi 5** running **Home Assistant** collects it, and a **Cloudflare Tunnel** shows the dashboard from anywhere. No port forwarding is needed.
+Build a small IoT pipeline: an **ESP32-H2** broadcasts temperature and humidity over Bluetooth LE, a **Raspberry Pi 5** running **Home Assistant** collects it, and **Tailscale Funnel** exposes the dashboard securely to the public internet with a persistent HTTPS URL. No port forwarding or custom domain is required (with Cloudflare Tunnel documented as an alternative option).
 
-![Architecture](docs/architecture.png)
+```mermaid
+flowchart LR
+    subgraph Edge["Edge Sensor"]
+        ESP["ESP32-H2<br/>(BTHome v2 BLE Beacon)"]
+    end
+
+    subgraph Gateway["Gateway: Raspberry Pi 5 (Home Assistant OS)"]
+        BLE["BLE Controller<br/>(Internal Bluetooth)"]
+        HA["Home Assistant Core<br/>(BTHome Integration :8123)"]
+        TS["Tailscale Add-on<br/>(proxy: true, funnel: true)"]
+        CF["cloudflared<br/>(Alternative Tunnel)"]
+    end
+
+    subgraph Cloud["Remote Access Layer"]
+        TF["Tailscale Funnel<br/>(MagicDNS + TLS Certs)"]
+        CFT["Cloudflare Edge<br/>(trycloudflare.com)"]
+    end
+
+    subgraph Clients["Clients (No VPN Required)"]
+        Browser["Web Browser / Mobile App<br/>https://&lt;machine&gt;.&lt;tailnet&gt;.ts.net"]
+    end
+
+    ESP -->|BLE Broadcast 10s| BLE
+    BLE --> HA
+    HA <-->|Reverse Proxy| TS
+    TS -->|Encrypted Tunnel| TF
+    TF -->|Public HTTPS / WSS| Browser
+
+    HA -.->|Alternative| CF
+    CF -.-> CFT
+    CFT -.-> Browser
+```
 
 | Stage | What it does | Key idea |
 |---|---|---|
 | ESP32-H2 | Broadcasts sensor readings | BTHome v2 beacon |
-| Home Assistant | Receives, stores and displays data | Local hub |
-| Cloudflared | Connects the Pi to Cloudflare | Outbound tunnel |
-| Cloudflare | Public HTTPS entry point | TLS + DDoS shield |
-| Browser / Phone | Views the dashboard | Live view over WSS |
+| Home Assistant | Receives, stores and displays data | Local hub on Pi 5 |
+| Tailscale Add-on | Routes encrypted traffic & terminates Funnel | `proxy: true`, `funnel: true` |
+| Tailscale Funnel | Public HTTPS endpoint with valid TLS | Fixed `*.ts.net` URL, zero router config |
+| Browser / Phone | Views dashboard over standard HTTPS | Live view over WSS (no client app needed) |
+| *Cloudflare Tunnel* | *(Alternative)* Outbound quick tunnel | Random `trycloudflare.com` URL |
 
 ---
 
@@ -278,11 +310,84 @@ sensor.living_room_h2_sim_32a2_humidity,50.56,2026-11-12T18:00:03.143Z
 
 ---
 
-## Part 3: Public access with Cloudflare Tunnel
+## Part 3: Remote access with Tailscale Funnel (Primary)
+
+With **Tailscale Funnel**, you can route public HTTPS traffic to your local Home Assistant instance on the Raspberry Pi 5 without router port forwarding, static public IPs, or purchasing a custom domain. Any browser or mobile phone can access the dashboard directly at a permanent `https://<machine>.<tailnet>.ts.net` address with automated Let's Encrypt certificates.
+
+### 3.1 Prerequisites in Tailscale Admin Console
+
+Before configuring Home Assistant, ensure your Tailnet has Funnel and HTTPS enabled:
+
+1. Log in to the [Tailscale Admin Console](https://login.tailscale.com/admin).
+2. Go to **DNS** and enable **MagicDNS**.
+3. Under **HTTPS Certificates**, enable certificate provisioning so Tailscale can generate automated Let's Encrypt certificates for your machines.
+4. Go to **Access Controls (ACLs)** and ensure the `funnel` attribute is permitted for your users/nodes (Tailscale provides a default Funnel ACL snippet):
+
+```json
+"nodeAttrs": [
+  {
+    "target": ["autogroup:member"],
+    "attr": ["funnel"]
+  }
+]
+```
+
+### 3.2 Install and configure the Tailscale Add-on in Home Assistant OS
+
+The official Home Assistant Community Tailscale add-on allows exposing Home Assistant via Tailscale Funnel directly from the supervisor:
+
+1. In Home Assistant, navigate to **Settings → Add-ons → Add-on Store**.
+2. Search for **Tailscale** and click **Install**.
+3. Go to the **Configuration** tab of the Tailscale add-on:
+   - Set `proxy: true` (enables reverse proxying to Home Assistant).
+   - Set `funnel: true` (enables Tailscale Funnel to route public internet traffic to port 8123).
+   - (Optional) Set `tags` (e.g. `tag:ha`) or leave default user authentication.
+4. Click **Save**.
+5. Switch to the **Info** tab, toggle **Start on boot** and **Watchdog** on, then click **Start**.
+6. Open the add-on **Web UI** or view the logs to copy the authentication link, open it in your browser, and authorize the node into your Tailnet.
+
+### 3.3 Trust reverse proxy in Home Assistant
+
+Home Assistant's security model blocks HTTP traffic arriving from reverse proxies unless their IP addresses are explicitly trusted. Add the following block to `/config/configuration.yaml` (using the File Editor or Advanced SSH add-on):
+
+```yaml
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - ::1
+    - 172.30.32.0/23    # Docker container subnet for Home Assistant Supervisor add-ons
+    - 172.30.33.0/24    # Default HA add-on proxy subnet
+    - 100.64.0.0/10     # Tailscale Carrier Grade NAT range
+```
+
+Validate your configuration under **Developer Tools → YAML → Check Configuration**, then restart Home Assistant.
+
+### 3.4 Access the dashboard from anywhere
+
+Once connected, find your device's MagicDNS domain name in the Tailscale Admin Console or add-on log:
+
+```text
+https://<machine-name>.<tailnet-name>.ts.net
+```
+
+Open this URL on any web browser or phone anywhere on the public internet. No Tailscale client installation or VPN login is required on client devices.
+
+![Home Assistant dashboard over the public URL](docs/images/dashboard.jpg)
+
+> [!TIP]
+> If you prefer restricting access strictly to devices authenticated on your private Tailnet, change `funnel: false` in the add-on configuration. The dashboard will then only be accessible to your own devices via `http://<machine-name>:8123` or your 100.x.y.z IP.
+
+---
+
+### Alternative: Public access with Cloudflare Tunnel
+
+<details>
+<summary>Click to expand Cloudflare Tunnel instructions (legacy / alternative)</summary>
 
 The Pi opens an **outbound** QUIC connection to Cloudflare, so you don't need to open any router ports. This also works behind carrier-grade NAT.
 
-### 3.1 Trust the proxy in Home Assistant
+#### 1. Trust the proxy in Home Assistant
 
 Add this to `/config/configuration.yaml`:
 
@@ -297,7 +402,7 @@ http:
 
 Check the config under **Developer Tools → YAML**, then restart Home Assistant.
 
-### 3.2 Run cloudflared as a service
+#### 2. Run cloudflared as a service
 
 ```bash
 curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 -o cloudflared
@@ -322,14 +427,11 @@ sudo systemctl enable --now cloudflared-tunnel
 journalctl -u cloudflared-tunnel | grep trycloudflare.com   # your public URL
 ```
 
-### Result
+#### Result
 
-Open the public URL from any browser or phone. The dashboard shows live gauges, mini trend tiles and a 1-hour history chart:
+Open the public URL from any browser or phone. The quick tunnel generates a random `trycloudflare.com` URL that changes on restart unless using a named tunnel with a custom domain.
 
-![Home Assistant dashboard over the public URL](docs/images/dashboard.jpg)
-
-> [!NOTE]
-> A quick tunnel gets a random URL that changes on restart. For a fixed address, use a named tunnel with your own domain.
+</details>
 
 ---
 
@@ -339,9 +441,11 @@ Open the public URL from any browser or phone. The dashboard shows live gauges, 
 |---|---|---|
 | No BTHome device appears | Adapter off or out of range | Check Bluetooth on the Pi. Watch the ESP32 log for "Packet #…". |
 | Build fails on `nimble/...` headers | NimBLE not enabled | Enable it in `menuconfig` (see Part 1). |
-| `400: Bad Request` on the public link | Proxy headers not trusted | Add the `http:` block from step 3.1. |
-| `Unable to connect to Home Assistant` | WebSocket blocked | Keep the `Upgrade: websocket` headers. The tunnel does this by default. |
-| Tunnel stops after reboot | cloudflared not a service | Use the systemd unit in step 3.2. |
+| `400: Bad Request` on public URL | Proxy headers not trusted | Add `127.0.0.1`, `::1`, and the Docker subnet (`172.30.32.0/23`) to `trusted_proxies` in `configuration.yaml` (Step 3.3). |
+| `Unable to connect to Home Assistant` | WebSocket blocked | Tailscale Funnel supports WebSockets out-of-the-box. Ensure port 8123 is reachable locally and reverse proxy settings are applied. |
+| Tailscale Funnel fails to start | Funnel not permitted in ACL | Open Tailscale Admin Console → Access Controls and add `"funnel"` to node attributes. |
+| Tailscale Funnel shows SSL/TLS error | HTTPS certs not enabled in Tailnet | Enable **MagicDNS** and **HTTPS Certificates** in Tailscale Admin Console DNS settings. |
+| Cloudflare tunnel stops after reboot | `cloudflared` not a service | Use the systemd unit in the Cloudflare alternative section. |
 | `Entity not found` on a card | Entity ID differs | Copy the exact ID from **Developer Tools → States**. |
 
 ---
@@ -351,4 +455,6 @@ Open the public URL from any browser or phone. The dashboard shows live gauges, 
 - [BTHome v2 format](https://bthome.io/format/)
 - [ESP-IDF for ESP32-H2](https://docs.espressif.com/projects/esp-idf/en/latest/esp32h2/)
 - [Home Assistant BTHome integration](https://www.home-assistant.io/integrations/bthome/)
+- [Tailscale Funnel Documentation](https://tailscale.com/kb/1223/funnel)
+- [Home Assistant Community Add-on: Tailscale](https://github.com/hassio-addons/addon-tailscale)
 - [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/)
