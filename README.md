@@ -373,8 +373,6 @@ https://<machine-name>.<tailnet-name>.ts.net
 
 Open this URL on any web browser or phone anywhere on the public internet. No Tailscale client installation or VPN login is required on client devices.
 
-![Home Assistant dashboard over the public URL](docs/images/dashboard.jpg)
-
 > [!TIP]
 > If you prefer restricting access strictly to devices authenticated on your private Tailnet, change `funnel: false` in the add-on configuration. The dashboard will then only be accessible to your own devices via `http://<machine-name>:8123` or your 100.x.y.z IP.
 
@@ -429,7 +427,12 @@ journalctl -u cloudflared-tunnel | grep trycloudflare.com   # your public URL
 
 #### Result
 
-Open the public URL from any browser or phone. The quick tunnel generates a random `trycloudflare.com` URL that changes on restart unless using a named tunnel with a custom domain.
+Open the public URL from any browser or phone. The dashboard shows live gauges, mini trend tiles and a 1-hour history chart:
+
+![Home Assistant dashboard over the public URL](docs/images/dashboard.jpg)
+
+> [!NOTE]
+> A quick tunnel gets a random URL that changes on restart. For a fixed address, use a named tunnel with your own domain.
 
 </details>
 
